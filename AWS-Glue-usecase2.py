@@ -20,7 +20,7 @@ spark = SparkSession.builder.appName("name2").getOrCreate()
 
 s3=boto3.client('s3')
 
-bucket = 'saama-gene-training-data-bucket'
+bucket = 'gbatch-training-2023'
 inbound = 'shubham/inbound/'
 landing = 'shubham/landing/'
 temp_dir = 'shubham/temp/'
@@ -63,13 +63,13 @@ for key in object_keys:
                     s3.upload_fileobj(file, bucket, filepath)
 
 # # #input file filepath
-input_path = "s3://saama-gene-training-data-bucket/shubham/temp"
+input_path = "s3://gbatch-training-2023"
 
 # # input_filename = os.path.basename(input_path)
 
 # filename = lst[1]
 # # output_path = os.path.join(os.path.dirname(input_path),os.path.splitext(input_filename)[0]+".csv")
-output_path = "s3://saama-gene-training-data-bucket/shubham/landing"
+output_path = "s3://gbatch-training-2023/shubham/landing"
 
 #Convert csv.gz to csv file
 s3 = boto3.resource('s3')
@@ -84,7 +84,7 @@ for obj in my_bucket.objects.filter(Prefix = source):
    
     # reding the file from temp
     df = spark.read.format("csv").option("header","true").option("inferSchema","true").\
-    load("s3://saama-gene-training-data-bucket/shubham/temp/{}".format(source_filename))
+    load("s3://gbatch-training-2023/shubham/temp/{}".format(source_filename))
     
     file = source_filename
     # ls = file.split('.')
@@ -93,11 +93,11 @@ for obj in my_bucket.objects.filter(Prefix = source):
     file_name=file.replace('.gz','')
     
     
-    # df.to_pandas().to_csv("s3://saama-gene-training-data-bucket/shubham/landing/yearmonth/{}".format(filename))
+    # df.to_pandas().to_csv("s3://gbatch-training-2023/shubham/landing/yearmonth/{}".format(filename))
     #write dataframe to csv
-    #df.write.format("csv").option("header","true").mode("append").save("s3://saama-gene-training-data-bucket/shubham/landing/{}".format(yearmonth))
+    #df.write.format("csv").option("header","true").mode("append").save("s3://gbatch-training-2023/shubham/landing/{}".format(yearmonth))
     df1=df.withColumn("Open",col("Open").cast((DoubleType()))).withColumn("High",col("High").cast((DoubleType())))\
         .withColumn("Low",col("Low").cast((DoubleType()))).withColumn("Close",col("Close").cast((DoubleType())))
-    df1.toPandas().to_csv("s3://saama-gene-training-data-bucket/shubham/landing/{}/{}".format(yearmonth,file_name))
+    df1.toPandas().to_csv("s3://gbatch-training-2023/shubham/landing/{}/{}".format(yearmonth,file_name))
  
    
